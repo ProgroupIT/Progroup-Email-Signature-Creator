@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="tr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ProGroup İmza Oluşturucu</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f6f9;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            width: 98%;
+            /* Tüm genişliği kapsasın */
+            box-sizing: border-box;
+            margin: 0 auto;
+        }
+
+        h2 {
+            color: #0073c8;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 10px;
+            margin-top: 0;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+            background-color: #fafafa;
+            padding: 15px;
+            border: 1px solid #eee;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            font-size: 14px;
+            color: #444;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+            margin-bottom: 10px;
+        }
+
+        .buttons {
+            margin-top: 20px;
+            display: flex;
+            gap: 15px;
+        }
+
+        button {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 15px;
+            transition: background 0.2s;
+        }
+
+        #btn-create {
+            background-color: #0073c8;
+            color: white;
+        }
+
+        #btn-create:hover {
+            background-color: #005a9e;
+        }
+
+        #btn-copy-view {
+            background-color: #28a745;
+            color: white;
+            display: none;
+        }
+
+        #btn-copy-view:hover {
+            background-color: #218838;
+        }
+
+        .section-title {
+            font-size: 14px;
+            color: #888;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin: 30px 0 10px 0;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 5px;
+        }
+
+        .preview-area {
+            padding: 20px;
+            border: 1px dashed #ccc;
+            background-color: #fff;
+            min-height: 150px;
+            overflow: auto;
+        }
+
+        /* Kaynak Kod Alanı */
+        .code-area {
+            width: 100%;
+            height: 200px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 12px;
+            color: #333;
+            background-color: #f8f9fa;
+            border: 1px solid #ccc;
+            padding: 10px;
+            box-sizing: border-box;
+            resize: vertical;
+        }
+
+        /* Bildirim */
+        #toast {
+            visibility: hidden;
+            min-width: 250px;
+            background-color: #333;
+            color: #fff;
+            text-align: center;
+            border-radius: 4px;
+            padding: 16px;
+            position: fixed;
+            z-index: 100;
+            left: 50%;
+            bottom: 30px;
+            transform: translateX(-50%);
+        }
+
+        #toast.show {
+            visibility: visible;
+            animation: fadein 0.5s, fadeout 0.5s 2.5s;
+        }
+
+        @keyframes fadein {
+            from {
+                bottom: 0;
+                opacity: 0;
+            }
+
+            to {
+                bottom: 30px;
+                opacity: 1;
+            }
+        }
+
+        @keyframes fadeout {
+            from {
+                bottom: 30px;
+                opacity: 1;
+            }
+
+            to {
+                bottom: 0;
+                opacity: 0;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+  <div class="container">
+    <img src="https://www.progroup.com.tr/Assets/images/logo-progroup-black.png" style="
+    width: 25%;
+    height: auto;
+">
+        <h3 style="
+    text-align: right;
+">ProGroup İmza Oluşturucu</h3>
+
+        <div class="form-grid">
+        <div class="row">
+          
+                
+            <div class="form-group">
+                <label>Ad Soyad</label>
+                <input type="text" id="fullname" placeholder="Örn: Buket YEMİŞKEN">
+            </div>
+            <div class="form-group">
+                <label>E-Posta</label>
+                <input type="email" id="email" placeholder="isim.soyisim@progroup.com.tr">
+            </div>
+            </div>
+            <div class="row">
+            <div class="form-group">
+                <label>Ünvan (Türkçe)</label>
+                <input type="text" id="titleTr" placeholder="Örn: İş Geliştirme Uzmanı">
+            </div>
+            <div class="form-group">
+                <label>Ünvan (İngilizce)</label>
+                <input type="text" id="titleEn" placeholder="Örn: Business Development Specialist">
+            </div>
+            <div class="form-group">
+                <label>Cep Telefonu</label>
+                <input type="text" id="phoneMobile" placeholder="+90 (5XX) XXX XX XX">
+            </div>
+            </div>
+
+        </div>
+
+        <div class="buttons">
+            <button id="btn-create" onclick="generateSignature()">İmzayı Hazırla</button>
+            <button id="btn-copy-view" onclick="copyPreview()">Görünümü Kopyala</button>
+        </div>
+
+        <div class="section-title">İmza Önizleme</div>
+        <div id="signature-preview" class="preview-area">
+            <p style="color:#999; text-align:center;">Bilgileri girip "İmzayı Hazırla" butonuna basınız.</p>
+        </div>
+
+        <div class="section-title">Kaynak Kod (HTML)</div>
+        <textarea id="source-code" class="code-area" readonly
+            placeholder="Burada imzanın kaynak kodu görünecek..."></textarea>
+        <button onclick="copySourceCode()"
+            style="margin-top:10px; background-color: #6c757d; color: white; padding: 8px 15px; font-size: 13px;">Kaynak
+            Kodu Kopyala</button>
+    </div>
+
+    <div id="toast">Kopyalandı!</div>
+
+    <script>
+        function generateSignature() {
+            const fullname = document.getElementById('fullname').value || 'Ad Soyad';
+            const titleTr = document.getElementById('titleTr').value || '';
+            const titleEn = document.getElementById('titleEn').value || '';
+            const phoneMobile = document.getElementById('phoneMobile').value || '';
+            const email = document.getElementById('email').value || 'email@progroup.com.tr';
+
+            const html = `
+
+    <table style="border-collapse:collapse; margin: 0 auto;" border="0" cellspacing="0" cellpadding="0">
+        <colgroup>
+            <col style="width:42.48%;">
+            <col style="width:7.11%;">
+            <col style="width:50.41%;">
+        </colgroup>
+        <tbody>
+            <tr>
+                <td style="padding:0px;" rowspan="2">
+                    <div class="table">
+                        <div class="table">
+                            <span style="font-family:Arial, Helvetica, sans-serif; color: #0073c8;"><strong>${fullname}</strong>
+                                <br></span>
+
+                            <span style="font-family:Arial, Helvetica, sans-serif;color:#777777;font-size:11px;"><br>${titleTr}</span><br><span
+                                style="font-family:Arial, Helvetica, sans-serif;color:#777777;font-size:11px;">${titleEn}</span>
+
+                        </div>
+                    </div>
+
+                    <div style="margin:0;">
+                        &nbsp;
+                    </div>
+                </td>
+                <td rowspan="3">
+                    <div style="margin:0;">
+                        &nbsp;
+                    </div>
+                </td>
+                <td style="
+    text-align: right;
+">
+                    <div>
+                        <img style="width: 160px;height: auto;text-align: right;"
+                            src="https://www.progroup.com.tr/Assets/images/logo-progroup-black.png" alt="ProGroup Logo"
+                            width="399" height="149">
+                    </div>
+                </td>
+            </tr>
+
+            <tr>
+                <td width="572" colspan="2" valign="top"
+                    style="border:none;border-bottom:solid #d9d9d9 1.5pt;padding:0cm 5.4pt 0cm 0cm">
+                    <p class="MsoNormal"><b></b><span></span></p>
+                </td>
+
+            </tr>
+            <tr>
+                <td width="572" colspan="2" valign="top"
+                    style="border:none;border-bottom:solid #d9d9d9 1.5pt;/* padding:0cm 5.4pt 0cm 0cm; */">
+                    <p class="MsoNormal"><b></b><span></span></p>
+                </td>
+
+            </tr>
+            <tr>
+                <td style=" padding:0 5.4pt;width:229.85pt;" width="383">
+                    <div style="margin:0;">
+
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td style="">
+                    <div style="margin:0;">
+                        <span style="color:#0073c8;font-family:Aptos,sans-serif;font-size:10pt;"><strong><span
+                                    style="font-family:Wingdings,'Segoe UI Symbol',Apple Color Emoji,Arial,sans-serif; font-size:13px;">☎
+                                </span> :</strong></span><span
+                            style="color:#7F7F7F;font-family:Arial, Helvetica, sans-serif;font-size:10pt;"> +90 (212)
+                            356 29 60 Pbx</span>
+                    </div>
+                    <div style="margin:0;">
+                        <span style="color:#0073c8;font-family:Aptos,sans-serif;font-size:10pt;"><strong> <span
+                                    style="font-family:Wingdings,'Segoe UI Symbol',Apple Color Emoji,Arial,sans-serif; font-size:13px;">📱
+                                </span> :</strong></span><span
+                            style="color:#7F7F7F;font-family:Arial, Helvetica, sans-serif;font-size:10pt;">${phoneMobile} </span>
+                    </div>
+                    <div style="margin:0;">
+                        <span style="color:#0073c8;font-family:Aptos,sans-serif;font-size:11pt;"><strong><span
+                                    style="font-family:Wingdings,'Segoe UI Symbol',Apple Color Emoji,Arial,sans-serif; font-size:13px;">✉
+                                </span> :</strong></span><a target="_blank" rel="noopener noreferrer" href="mailto:${email}"
+                            style="
+    text-decoration: none;
+    text-decoration-color: #02549b;
+"><span style="color:#0563C1;font-family:Arial, Helvetica, sans-serif;font-size:10pt;">
+                                ${email}</span></a>
+                    </div>
+
+                </td>
+                <td style="padding:0 0pt 0 0;vertical-align:top;width:297px;">
+                    &nbsp;
+                </td>
+                <td style="width:229.85pt;" width="383">
+                    <div style="margin:0;text-align: right;">
+                        <span
+                            style="color:#0073c8;font-family:Arial, Helvetica, sans-serif;font-size:10pt;"><strong>Adres:&nbsp;</strong></span><span
+                            style="color:#7F7F7F;font-family:Arial, Helvetica, sans-serif;font-size:10pt;">Balmumcu
+                            Mahallesi Barbaros Bulvarı No:76/12 Beşiktaş/İSTANBUL</span>
+                    </div>
+                    <p class="MsoNormal" style="text-align: right;">
+
+
+
+<p class="MsoNormal" style="text-align: right;">
+                        <a href="https://www.facebook.com/ProGroupComTR/" target="_blank" style="text-decoration:none;"><img src="https://s.magecdn.com/social/24w/mb-facebook.png" width="18" height="18" style="border:0;"></a>
+                        <span style="color:#404040;"> </span>
+                        <a href="https://twitter.com/ProGroupComTR" target="_blank" style="text-decoration:none;"><img src="https://s.magecdn.com/social/24w/mb-x.png" width="18" height="18" style="border:0;"></a>
+                        <span style="color:#404040;"> </span>
+                        <a href="https://www.youtube.com/channel/UC9MeNDCIP6xkhomFUpNLN1Q" target="_blank" style="text-decoration:none;"><img src="https://s.magecdn.com/social/24w/mb-youtube.png" width="18" height="18" style="border:0;"></a>
+                        <span style="color:black;"> </span>
+                        <a href="https://tr.linkedin.com/company/progroupuluslarasidanismanlik" target="_blank" style="text-decoration:none;"><img src="https://s.magecdn.com/social/24w/mb-linkedin.png" width="18" height="18" style="border:0;"></a>
+                        <span style="color:#404040;"> </span>
+                        <a href="https://www.instagram.com/progroupdanismanlik/" target="_blank" style="text-decoration:none;"><img src="https://s.magecdn.com/social/24w/mb-instagram.png" width="18" height="18" style="border:0;"></a>
+                    </p>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+`;
+
+            document.getElementById('signature-preview').innerHTML = html;
+            document.getElementById('source-code').value = html.trim();
+            document.getElementById('btn-copy-view').style.display = 'block';
+        }
+
+        function showToast(message) {
+            const toast = document.getElementById("toast");
+            toast.innerText = message;
+            toast.className = "show";
+            setTimeout(function () { toast.className = toast.className.replace("show", ""); }, 3000);
+        }
+
+        function copyPreview() {
+            const previewElement = document.getElementById('signature-preview');
+            const range = document.createRange();
+            range.selectNode(previewElement);
+            window.getSelection().removeAllRanges();
+            window.getSelection().addRange(range);
+            try {
+                document.execCommand('copy');
+                showToast("Görünüm kopyalandı! (Outlook/Gmail'e yapıştırın)");
+            } catch (err) {
+                alert('Kopyalama başarısız.');
+            }
+            window.getSelection().removeAllRanges();
+        }
+
+        function copySourceCode() {
+            const codeBox = document.getElementById('source-code');
+            codeBox.select();
+            codeBox.setSelectionRange(0, 99999);
+            navigator.clipboard.writeText(codeBox.value).then(() => {
+                showToast("HTML Kaynak Kodu kopyalandı!");
+            });
+        }
+    </script>
+
+</body>
+
+</html>
